@@ -26,7 +26,10 @@ export default function Home() {
     if (tries <= 0) {
       setStatus("lost");
     }
-    if (actualWord && actualWord.split("").every(letter => correctLetters.includes(letter))) {
+    if (
+      actualWord &&
+      actualWord.split("").every((letter) => correctLetters.includes(letter))
+    ) {
       setStatus("won");
     }
   });
@@ -72,10 +75,23 @@ export default function Home() {
   ];
 
   const keyboard = alphabet.map((letter) => (
-    <button key={letter} onClick={() => handleLetter(letter)} disabled={triedLetters.includes(letter)}>
+    <button
+      key={letter}
+      onClick={() => handleLetter(letter)}
+      disabled={status != "playing"}
+    >
       {letter}
     </button>
   ));
+
+  function restart() {
+    setActualWord(chooseRandomWord());
+    setCorrectLetters([]);
+    setIncorrectLetters([]);
+    setTriedLetters([]);
+    setTries(6);
+    setStatus("playing");
+  }
 
   return (
     <div>
@@ -110,6 +126,9 @@ export default function Home() {
         </span>
       </div>
       <div>{keyboard}</div>
+      <div>
+        <button onClick={restart}>Reiniciar</button>
+      </div>
     </div>
   );
 }
