@@ -1,248 +1,378 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-const JogoDaForca = () => {
-  // Lista de palavras para o jogo
-  const palavras = [
-    "JAVASCRIPT",
-    "NEXTJS",
-    "REACT",
-    "TYPESCRIPT",
-    "FRONTEND",
-    "BACKEND",
-    "DATABASE",
-    "SERVIDOR",
-    "APLICACAO",
-    "PROGRAMADOR",
-    "COMPUTADOR",
-    "TECNOLOGIA",
-    "INTERNET",
-    "WEBSITE",
-    "MOBILE",
+import { Dices, HeartCrack, PartyPopper, RotateCcw, X } from "lucide-react";
+
+const WORDS = [
+  "JAVASCRIPT",
+  "PYTHON",
+  "REACT",
+  "ANGULAR",
+  "NODEJS",
+  "TYPESCRIPT",
+  "DATABASE",
+  "FRONTEND",
+  "BACKEND",
+  "FULLSTACK",
+  "FRAMEWORK",
+  "COMPONENT",
+  "FUNCTION",
+  "VARIABLE",
+  "ALGORITHM",
+  "INTERFACE",
+  "PROGRAMMING",
+  "DEVELOPMENT",
+  "SOFTWARE",
+  "COMPUTER",
+  "INTERNET",
+  "WEBSITE",
+  "APPLICATION",
+  "MOBILE",
+  "DESKTOP",
+  "CLOUD",
+  "SECURITY",
+  "NETWORK",
+  "SERVER",
+  "CLIENT",
+  "AUTHENTICATION",
+  "ENCRYPTION",
+  "RESPONSIVE",
+  "DESIGN",
+  "ARCHITECTURE",
+];
+
+const MAX_WRONG_GUESSES = 6;
+
+const HangmanDrawing = ({ wrongGuesses }) => {
+  const parts = [
+    // Base
+    <line
+      key="base"
+      x1="10"
+      y1="190"
+      x2="70"
+      y2="190"
+      stroke="#8B4513"
+      strokeWidth="4"
+    />,
+    // Pole
+    <line
+      key="pole"
+      x1="30"
+      y1="190"
+      x2="30"
+      y2="20"
+      stroke="#8B4513"
+      strokeWidth="4"
+    />,
+    // Top beam
+    <line
+      key="beam"
+      x1="30"
+      y1="20"
+      x2="100"
+      y2="20"
+      stroke="#8B4513"
+      strokeWidth="4"
+    />,
+    // Noose
+    <line
+      key="noose"
+      x1="100"
+      y1="20"
+      x2="100"
+      y2="40"
+      stroke="#8B4513"
+      strokeWidth="2"
+    />,
+    // Head
+    <circle
+      key="head"
+      cx="100"
+      cy="50"
+      r="10"
+      stroke="#333"
+      strokeWidth="2"
+      fill="none"
+    />,
+    // Body
+    <line
+      key="body"
+      x1="100"
+      y1="60"
+      x2="100"
+      y2="120"
+      stroke="#333"
+      strokeWidth="2"
+    />,
   ];
 
-  const [palavraAtual, setPalavraAtual] = useState("");
-  const [letrasAdivinhadas, setLetrasAdivinhadas] = useState(new Set());
-  const [tentativasErradas, setTentativasErradas] = useState(0);
-  const [jogoTerminado, setJogoTerminado] = useState(false);
-  const [ganhou, setGanhou] = useState(false);
-  const maxTentativas = 6;
+  return (
+    <svg width="120" height="200" className="hangman-drawing">
+      {parts.slice(0, wrongGuesses)}
+      {wrongGuesses > 4 && (
+        <>
+          {/* Left arm */}
+          <line
+            x1="100"
+            y1="80"
+            x2="80"
+            y2="100"
+            stroke="#333"
+            strokeWidth="2"
+          />
+          {/* Right arm */}
+          <line
+            x1="100"
+            y1="80"
+            x2="120"
+            y2="100"
+            stroke="#333"
+            strokeWidth="2"
+          />
+        </>
+      )}
+      {wrongGuesses > 5 && (
+        <>
+          {/* Left leg */}
+          <line
+            x1="100"
+            y1="120"
+            x2="85"
+            y2="150"
+            stroke="#333"
+            strokeWidth="2"
+          />
+          {/* Right leg */}
+          <line
+            x1="100"
+            y1="120"
+            x2="115"
+            y2="150"
+            stroke="#333"
+            strokeWidth="2"
+          />
+        </>
+      )}
+    </svg>
+  );
+};
 
-  // Inicializar jogo
-  useEffect(() => {
-    iniciarNovoJogo();
+const HangmanGame = () => {
+  const [currentWord, setCurrentWord] = useState("");
+  const [guessedLetters, setGuessedLetters] = useState(new Set());
+  const [wrongGuesses, setWrongGuesses] = useState(0);
+  const [gameStatus, setGameStatus] = useState("playing"); // 'playing', 'won', 'lost'
+  const [inputLetter, setInputLetter] = useState("");
+
+  const initializeGame = useCallback(() => {
+    const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    setCurrentWord(randomWord);
+    setGuessedLetters(new Set());
+    setWrongGuesses(0);
+    setGameStatus("playing");
+    setInputLetter("");
   }, []);
 
-  const iniciarNovoJogo = () => {
-    const palavraAleatoria =
-      palavras[Math.floor(Math.random() * palavras.length)];
-    setPalavraAtual(palavraAleatoria);
-    setLetrasAdivinhadas(new Set());
-    setTentativasErradas(0);
-    setJogoTerminado(false);
-    setGanhou(false);
-  };
-
-  // Verificar se o jogo terminou
   useEffect(() => {
-    if (palavraAtual) {
-      const letrasUnicas = new Set(palavraAtual);
-      const acertou = [...letrasUnicas].every((letra) =>
-        letrasAdivinhadas.has(letra)
-      );
+    initializeGame();
+  }, [initializeGame]);
 
-      if (acertou) {
-        setGanhou(true);
-        setJogoTerminado(true);
-      } else if (tentativasErradas >= maxTentativas) {
-        setJogoTerminado(true);
-      }
+  const displayWord = currentWord
+    .split("")
+    .map((letter) => (guessedLetters.has(letter) ? letter : "_"))
+    .join(" ");
+
+  const handleGuess = (letter) => {
+    if (gameStatus !== "playing" || guessedLetters.has(letter)) {
+      return;
     }
-  }, [letrasAdivinhadas, tentativasErradas, palavraAtual]);
 
-  const tentarLetra = (letra) => {
-    if (letrasAdivinhadas.has(letra) || jogoTerminado) return;
+    const newGuessedLetters = new Set([...guessedLetters, letter]);
+    setGuessedLetters(newGuessedLetters);
 
-    const novasLetras = new Set([...letrasAdivinhadas, letra]);
-    setLetrasAdivinhadas(novasLetras);
-
-    if (!palavraAtual.includes(letra)) {
-      setTentativasErradas((prev) => prev + 1);
+    if (!currentWord.includes(letter)) {
+      setWrongGuesses((prev) => prev + 1);
     }
   };
 
-  // Renderizar palavra com letras reveladas
-  const renderizarPalavra = () => {
-    return palavraAtual.split("").map((letra, index) => (
-      <span
-        key={index}
-        className="inline-block w-8 h-10 mx-1 text-2xl font-bold text-center border-b-2 border-blue-600"
-      >
-        {letrasAdivinhadas.has(letra) ? letra : ""}
-      </span>
-    ));
+  const handleInputSubmit = (e) => {
+    const letter = inputLetter.toUpperCase();
+    if (letter && letter.length === 1 && /[A-Z]/.test(letter)) {
+      handleGuess(letter);
+      setInputLetter("");
+    }
   };
 
-  // Desenho da forca baseado no número de erros
-  const desenharForca = () => {
-    const partes = [
-      "  +---+",
-      "  |   |",
-      tentativasErradas > 0 ? "  O   |" : "      |",
-      tentativasErradas > 2
-        ? " /|\\  |"
-        : tentativasErradas > 1
-        ? " /|   |"
-        : "      |",
-      tentativasErradas > 4
-        ? " / \\  |"
-        : tentativasErradas > 3
-        ? " /    |"
-        : "      |",
-      "      |",
-      "=========",
-    ];
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-    return partes.map((linha, index) => (
-      <div key={index} className="font-mono text-sm">
-        {linha}
-      </div>
-    ));
-  };
+  useEffect(() => {
+    if (wrongGuesses >= MAX_WRONG_GUESSES) {
+      setGameStatus("lost");
+    } else if (
+      currentWord &&
+      currentWord.split("").every((letter) => guessedLetters.has(letter))
+    ) {
+      setGameStatus("won");
+    }
+  }, [wrongGuesses, currentWord, guessedLetters]);
 
-  // Gerar teclado virtual
-  const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const correctLetters = Array.from(guessedLetters).filter((letter) =>
+    currentWord.includes(letter)
+  );
+  const incorrectLetters = Array.from(guessedLetters).filter(
+    (letter) => !currentWord.includes(letter)
+  );
 
-  const renderizarTeclado = () => {
-    return (
-      <div className="grid grid-cols-6 gap-2 max-w-md mx-auto">
-        {alfabeto.map((letra) => {
-          const jaUsada = letrasAdivinhadas.has(letra);
-          const acertou = jaUsada && palavraAtual.includes(letra);
-          const errou = jaUsada && !palavraAtual.includes(letra);
-
-          return (
-            <button
-              key={letra}
-              onClick={() => tentarLetra(letra)}
-              disabled={jaUsada || jogoTerminado}
-              className={`
-                p-2 rounded font-bold transition-colors
-                ${
-                  errou
-                    ? "bg-red-500 text-white"
-                    : acertou
-                    ? "bg-green-500 text-white"
-                    : jaUsada
-                    ? "bg-gray-400 text-gray-600"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }
-                ${
-                  jaUsada || jogoTerminado
-                    ? "cursor-not-allowed opacity-60"
-                    : "cursor-pointer"
-                }
-              `}
-            >
-              {letra}
-            </button>
-          );
-        })}
-      </div>
-    );
-  };
+  console.log(currentWord);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
-          🎯 Jogo da Forca
-        </h1>
-
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Desenho da Forca */}
-            <div className="text-center">
-              <h2 className="text-xl font-semibold mb-4">Forca</h2>
-              <div className="bg-gray-100 p-4 rounded inline-block">
-                {desenharForca()}
-              </div>
-              <div className="mt-4">
-                <p className="text-sm text-gray-600">
-                  Tentativas restantes: {maxTentativas - tentativasErradas}
-                </p>
-              </div>
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-center">
+            <div className="flex justify-center items-center mb-2">
+              <Dices size={48} color="white" className="mr-2" />
+              <h1 className="text-4xl font-bold text-white">Jogo da Forca</h1>
             </div>
-
-            {/* Status do Jogo */}
-            <div className="text-center">
-              <h2 className="text-xl font-semibold mb-4">Status</h2>
-
-              {jogoTerminado && (
-                <div
-                  className={`text-2xl font-bold mb-4 ${
-                    ganhou ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {ganhou ? "🎉 Você ganhou!" : "💀 Game Over!"}
-                </div>
-              )}
-
-              <div className="mb-4">
-                <h3 className="text-lg mb-2">Palavra:</h3>
-                <div className="flex justify-center flex-wrap">
-                  {renderizarPalavra()}
-                </div>
-              </div>
-
-              {jogoTerminado && !ganhou && (
-                <p className="text-gray-600 mb-4">
-                  A palavra era: <strong>{palavraAtual}</strong>
-                </p>
-              )}
-
-              <div className="text-sm text-gray-600">
-                <p>
-                  Letras usadas: {tentativasErradas}/{maxTentativas}
-                </p>
-              </div>
-            </div>
+            <p className="text-blue-100">
+              Descubra a palavra antes que seja tarde demais!
+            </p>
           </div>
-        </div>
 
-        {/* Teclado Virtual */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-center mb-4">
-            Escolha uma letra
-          </h2>
-          {renderizarTeclado()}
-        </div>
+          <div className="p-8">
+            <div className="gap-8">
+              {/* Left Column - Game Area */}
+              <div className="space-y-6">
+                {/* Hangman Drawing */}
+                <div className="bg-gray-50 rounded-xl p-6 flex justify-center">
+                  <HangmanDrawing wrongGuesses={wrongGuesses} />
+                </div>
 
-        {/* Botão Novo Jogo */}
-        <div className="text-center">
-          <button
-            onClick={iniciarNovoJogo}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
-            🔄 Novo Jogo
-          </button>
-        </div>
+                {/* Game Status */}
+                <div className="text-center">
+                  <div className="text-sm text-gray-600 mb-2">
+                    Tentativas restantes:
+                    <span
+                      className={`ml-2 font-bold ${
+                        wrongGuesses >= 4 ? "text-red-500" : "text-green-500"
+                      }`}
+                    >
+                      {MAX_WRONG_GUESSES - wrongGuesses}
+                    </span>
+                  </div>
 
-        {/* Instruções */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold mb-4">Como jogar</h2>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div>
-              <h3 className="font-semibold mb-2">Objetivo:</h3>
-              <p>Adivinhe a palavra secreta escolhendo letras uma por vez.</p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Regras:</h3>
-              <p>
-                Você tem 6 tentativas. Cada letra errada adiciona uma parte ao
-                desenho da forca.
-              </p>
+                  {gameStatus === "won" && (
+                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex justify-center items-center">
+                      <PartyPopper size={24} className="mr-2" />
+                      Parabéns! Você venceu!
+                    </div>
+                  )}
+
+                  {gameStatus === "lost" && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex justify-center items-center">
+                      <HeartCrack size={24} className="mr-2" />
+                      Que pena! A palavra era: <strong>{currentWord}</strong>
+                    </div>
+                  )}
+                </div>
+
+                {/* Word Display */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-mono font-bold tracking-wider text-gray-800 mb-4">
+                      {displayWord}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {currentWord.length} letras
+                    </div>
+                  </div>
+                </div>
+
+                {/* Restart Button */}
+                <button
+                  onClick={initializeGame}
+                  className="w-full flex justify-center items-center bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105"
+                >
+                  <RotateCcw size={24} className="mr-2" />
+                  Novo Jogo
+                </button>
+              </div>
+
+              {/* Right Column - Letters and Stats */}
+              <div className="space-y-6">
+                {/* Virtual Keyboard */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                    Teclado Virtual
+                  </h3>
+                  <div className="grid grid-cols-6 gap-2">
+                    {alphabet.map((letter) => {
+                      const isGuessed = guessedLetters.has(letter);
+                      const isCorrect =
+                        isGuessed && currentWord.includes(letter);
+                      const isIncorrect =
+                        isGuessed && !currentWord.includes(letter);
+
+                      return (
+                        <button
+                          key={letter}
+                          onClick={() => handleGuess(letter)}
+                          disabled={isGuessed || gameStatus !== "playing"}
+                          className={`
+                            py-2 px-1 rounded font-semibold text-sm transition-all
+                            ${
+                              isCorrect
+                                ? "bg-green-500 text-white"
+                                : isIncorrect
+                                ? "bg-red-500 text-white"
+                                : isGuessed
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105"
+                            }
+                            ${
+                              gameStatus !== "playing"
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
+                            }
+                          `}
+                        >
+                          {letter}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Guessed Letters */}
+                <div>
+                  <div className="bg-red-50 rounded-xl p-4">
+                    <div className="flex mb-3">
+                      <X size={32} color="red" />
+                      <h3 className="text-lg font-semibold text-red-800 flex items-center">
+                        Incorretas
+                      </h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {incorrectLetters.length > 0 ? (
+                        incorrectLetters.map((letter) => (
+                          <span
+                            key={letter}
+                            className="bg-red-200 text-red-800 px-2 py-1 rounded font-semibold"
+                          >
+                            {letter}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-red-600 text-sm">
+                          Nenhuma ainda
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -251,4 +381,4 @@ const JogoDaForca = () => {
   );
 };
 
-export default JogoDaForca;
+export default HangmanGame;
