@@ -228,17 +228,12 @@ const HangmanGame = () => {
   console.log(currentWord);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-stone-100 to-white p-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-center">
-            <div className="flex justify-center items-center mb-2">
-              <Dices size={48} color="white" className="mr-2" />
-              <h1 className="text-4xl font-bold text-white">Jogo da Forca</h1>
-            </div>
-            <p className="text-blue-100">
-              Descubra a palavra antes que seja tarde demais!
-            </p>
+          <div className="bg-stone-800 p-6 text-center flex justify-center items-center">
+            <Dices size={48} color="white" className="mr-2" />
+            <h1 className="text-4xl font-bold text-white">Jogo da Forca</h1>
           </div>
 
           <div className="p-8">
@@ -246,13 +241,13 @@ const HangmanGame = () => {
               {/* Left Column - Game Area */}
               <div className="space-y-6">
                 {/* Hangman Drawing */}
-                <div className="bg-gray-50 rounded-xl p-6 flex justify-center">
+                <div className="bg-stone-50 rounded-xl p-6 flex justify-center">
                   <HangmanDrawing wrongGuesses={wrongGuesses} />
                 </div>
 
                 {/* Game Status */}
                 <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-2">
+                  <div className="text-sm text-stone-600 mb-2">
                     Tentativas restantes:
                     <span
                       className={`ml-2 font-bold ${
@@ -273,81 +268,26 @@ const HangmanGame = () => {
                   {gameStatus === "lost" && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex justify-center items-center">
                       <HeartCrack size={24} className="mr-2" />
-                      Que pena! A palavra era: <strong>{currentWord}</strong>
+                      Que pena! A palavra era:<strong>{currentWord}</strong>
                     </div>
                   )}
                 </div>
 
                 {/* Word Display */}
-                <div className="bg-gray-50 rounded-xl p-6">
+                <div className="bg-stone-50 rounded-xl p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-mono font-bold tracking-wider text-gray-800 mb-4">
+                    <div className="text-3xl font-mono font-bold tracking-wider text-stone-800 mb-4">
                       {displayWord}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-stone-600">
                       {currentWord.length} letras
                     </div>
                   </div>
                 </div>
 
                 {/* Restart Button */}
-                <button
-                  onClick={initializeGame}
-                  className="w-full flex justify-center items-center bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105"
-                >
-                  <RotateCcw size={24} className="mr-2" />
-                  Novo Jogo
-                </button>
-              </div>
-
-              {/* Right Column - Letters and Stats */}
-              <div className="space-y-6">
-                {/* Virtual Keyboard */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                    Teclado Virtual
-                  </h3>
-                  <div className="grid grid-cols-6 gap-2">
-                    {alphabet.map((letter) => {
-                      const isGuessed = guessedLetters.has(letter);
-                      const isCorrect =
-                        isGuessed && currentWord.includes(letter);
-                      const isIncorrect =
-                        isGuessed && !currentWord.includes(letter);
-
-                      return (
-                        <button
-                          key={letter}
-                          onClick={() => handleGuess(letter)}
-                          disabled={isGuessed || gameStatus !== "playing"}
-                          className={`
-                            py-2 px-1 rounded font-semibold text-sm transition-all
-                            ${
-                              isCorrect
-                                ? "bg-green-500 text-white"
-                                : isIncorrect
-                                ? "bg-red-500 text-white"
-                                : isGuessed
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105"
-                            }
-                            ${
-                              gameStatus !== "playing"
-                                ? "cursor-not-allowed opacity-50"
-                                : ""
-                            }
-                          `}
-                        >
-                          {letter}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Guessed Letters */}
                 <div>
-                  <div className="bg-red-50 rounded-xl p-4">
+                  <div className="bg-red-50 rounded-xl p-4 mb-4">
                     <div className="flex mb-3">
                       <X size={32} color="red" />
                       <h3 className="text-lg font-semibold text-red-800 flex items-center">
@@ -372,6 +312,61 @@ const HangmanGame = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Right Column - Letters and Stats */}
+              <div className="space-y-6">
+                {/* Virtual Keyboard */}
+                <div className="bg-stone-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-stone-800">
+                    Teclado Virtual
+                  </h3>
+                  <div className="grid grid-cols-12 gap-2">
+                    {alphabet.map((letter) => {
+                      const isGuessed = guessedLetters.has(letter);
+                      const isCorrect =
+                        isGuessed && currentWord.includes(letter);
+                      const isIncorrect =
+                        isGuessed && !currentWord.includes(letter);
+
+                      return (
+                        <button
+                          key={letter}
+                          onClick={() => handleGuess(letter)}
+                          disabled={isGuessed || gameStatus !== "playing"}
+                          className={`
+                            py-2 px-1 rounded font-semibold text-sm transition-all
+                            ${
+                              isCorrect
+                                ? "bg-green-500 text-white"
+                                : isIncorrect
+                                ? "bg-red-500 text-white"
+                                : isGuessed
+                                ? "bg-stone-300 text-stone-500 cursor-not-allowed"
+                                : "bg-stone-800 hover:bg-stone-600 text-white hover:scale-105"
+                            }
+                            ${
+                              gameStatus !== "playing"
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
+                            }
+                          `}
+                        >
+                          {letter}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Guessed Letters */}
+                <button
+                  onClick={initializeGame}
+                  className="w-full flex justify-center items-center bg-stone-800 text-white py-3 px-6 rounded-lg font-semibold transition-all transform hover:scale-105"
+                >
+                  <RotateCcw size={24} className="mr-2" />
+                  Reiniciar
+                </button>
               </div>
             </div>
           </div>
