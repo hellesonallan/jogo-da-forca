@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-import { Dices, HeartCrack, PartyPopper, RotateCcw, X } from "lucide-react";
+import { Dices, HeartCrack, PartyPopper, RotateCcw } from "lucide-react";
 
 const WORDS = [
   "JAVASCRIPT",
@@ -249,11 +249,7 @@ const HangmanGame = () => {
                 <div className="text-center">
                   <div className="text-sm text-stone-600 mb-2">
                     Tentativas restantes:
-                    <span
-                      className={`ml-2 font-bold ${
-                        wrongGuesses >= 4 ? "text-red-500" : "text-green-500"
-                      }`}
-                    >
+                    <span className={"ml-2 font-bold"}>
                       {MAX_WRONG_GUESSES - wrongGuesses}
                     </span>
                   </div>
@@ -268,47 +264,21 @@ const HangmanGame = () => {
                   {gameStatus === "lost" && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex justify-center items-center">
                       <HeartCrack size={24} className="mr-2" />
-                      Que pena! A palavra era:<strong>{currentWord}</strong>
+                      <h2>
+                        Que pena! A palavra era: <strong>{currentWord}</strong>
+                      </h2>
                     </div>
                   )}
                 </div>
 
                 {/* Word Display */}
-                <div className="bg-stone-50 rounded-xl p-6">
+                <div className="bg-stone-50 rounded-xl p-6 mb-4">
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold tracking-wider text-stone-800 mb-4">
                       {displayWord}
                     </div>
                     <div className="text-sm text-stone-600">
                       {currentWord.length} letras
-                    </div>
-                  </div>
-                </div>
-
-                {/* Restart Button */}
-                <div>
-                  <div className="bg-red-50 rounded-xl p-4 mb-4">
-                    <div className="flex mb-3">
-                      <X size={32} color="red" />
-                      <h3 className="text-lg font-semibold text-red-800 flex items-center">
-                        Incorretas
-                      </h3>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {incorrectLetters.length > 0 ? (
-                        incorrectLetters.map((letter) => (
-                          <span
-                            key={letter}
-                            className="bg-red-200 text-red-800 px-2 py-1 rounded font-semibold"
-                          >
-                            {letter}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-red-600 text-sm">
-                          Nenhuma ainda
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
