@@ -9,8 +9,6 @@ import { Estatisticas } from "./components/Estatisticas";
 import { DesenhoForca } from "./components/DesenhoForca";
 import { useJogoForca } from "./hooks/useJogoForca";
 
-const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
 export default function JogoForca() {
   const {
     palavraAtual,
@@ -56,7 +54,7 @@ export default function JogoForca() {
 
               <div className="space-y-6">
                 <TecladoVirtual
-                  alfabeto={ALFABETO}
+                  alfabeto={"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")}
                   letrasAdivinhadas={letrasAdivinhadas}
                   palavraAtual={palavraAtual}
                   statusJogo={statusJogo}
