@@ -1,5 +1,6 @@
 export function DesenhoForca({ tentativasErradas }) {
-  const partes = [
+  // Partes da forca (sempre visíveis)
+  const forca = [
     // Base
     <line
       key="base"
@@ -8,31 +9,31 @@ export function DesenhoForca({ tentativasErradas }) {
       x2="70"
       y2="190"
       stroke="#8B4513"
-      strokeWidth="4"
+      strokeWidth="8"
     />,
-    // Pole
+    // Poste
     <line
-      key="pole"
+      key="poste"
       x1="30"
       y1="190"
       x2="30"
       y2="20"
       stroke="#8B4513"
-      strokeWidth="4"
+      strokeWidth="8"
     />,
-    // Top beam
+    // Barra Superior
     <line
-      key="beam"
-      x1="30"
+      key="barra"
+      x1="26"
       y1="20"
-      x2="100"
+      x2="102"
       y2="20"
       stroke="#8B4513"
-      strokeWidth="4"
+      strokeWidth="8"
     />,
-    // Noose
+    // Laço
     <line
-      key="noose"
+      key="laco"
       x1="100"
       y1="20"
       x2="100"
@@ -40,9 +41,13 @@ export function DesenhoForca({ tentativasErradas }) {
       stroke="#8B4513"
       strokeWidth="2"
     />,
-    // Head
+  ];
+
+  // Partes do boneco (aparecem gradualmente)
+  const partesBoneco = [
+    // Cabeça (tentativa 1)
     <circle
-      key="head"
+      key="cabeca"
       cx="100"
       cy="50"
       r="10"
@@ -50,9 +55,9 @@ export function DesenhoForca({ tentativasErradas }) {
       strokeWidth="2"
       fill="none"
     />,
-    // Body
+    // Corpo (tentativa 2)
     <line
-      key="body"
+      key="corpo"
       x1="100"
       y1="60"
       x2="100"
@@ -60,55 +65,55 @@ export function DesenhoForca({ tentativasErradas }) {
       stroke="#333"
       strokeWidth="2"
     />,
+    // Braço esquerdo (tentativa 3)
+    <line
+      key="braco-esquerdo"
+      x1="100"
+      y1="80"
+      x2="80"
+      y2="100"
+      stroke="#333"
+      strokeWidth="2"
+    />,
+    // Braço direito (tentativa 4)
+    <line
+      key="braco-direito"
+      x1="100"
+      y1="80"
+      x2="120"
+      y2="100"
+      stroke="#333"
+      strokeWidth="2"
+    />,
+    // Perna esquerda (tentativa 5)
+    <line
+      key="perna-esquerda"
+      x1="100"
+      y1="120"
+      x2="85"
+      y2="150"
+      stroke="#333"
+      strokeWidth="2"
+    />,
+    // Perna direita (tentativa 6)
+    <line
+      key="perna-direita"
+      x1="100"
+      y1="120"
+      x2="115"
+      y2="150"
+      stroke="#333"
+      strokeWidth="2"
+    />,
   ];
 
   return (
     <svg width="120" height="200" className="hangman-drawing">
-      {partes.slice(0, tentativasErradas)}
-      {tentativasErradas > 4 && (
-        <>
-          {/* Left arm */}
-          <line
-            x1="100"
-            y1="80"
-            x2="80"
-            y2="100"
-            stroke="#333"
-            strokeWidth="2"
-          />
-          {/* Right arm */}
-          <line
-            x1="100"
-            y1="80"
-            x2="120"
-            y2="100"
-            stroke="#333"
-            strokeWidth="2"
-          />
-        </>
-      )}
-      {tentativasErradas > 5 && (
-        <>
-          {/* Left leg */}
-          <line
-            x1="100"
-            y1="120"
-            x2="85"
-            y2="150"
-            stroke="#333"
-            strokeWidth="2"
-          />
-          {/* Right leg */}
-          <line
-            x1="100"
-            y1="120"
-            x2="115"
-            y2="150"
-            stroke="#333"
-            strokeWidth="2"
-          />
-        </>
-      )}
+      {/* Forca sempre visível */}
+      {forca}
+
+      {/* Partes do boneco que aparecem conforme as tentativas erradas */}
+      {partesBoneco.slice(0, tentativasErradas)}
     </svg>
   );
 }
