@@ -1,5 +1,5 @@
 export function DesenhoForca({ tentativasErradas }) {
-  // Partes da forca (sempre visíveis)
+  // Partes da forca
   const forca = [
     // Base
     <line
@@ -43,7 +43,7 @@ export function DesenhoForca({ tentativasErradas }) {
     />,
   ];
 
-  // Partes do boneco (aparecem gradualmente)
+  // Partes do boneco
   const partesBoneco = [
     // Cabeça (tentativa 1)
     <circle
@@ -109,10 +109,7 @@ export function DesenhoForca({ tentativasErradas }) {
 
   return (
     <svg width="120" height="200" className="hangman-drawing">
-      {/* Forca sempre visível */}
       {forca}
-
-      {/* Partes do boneco que aparecem conforme as tentativas erradas */}
       {partesBoneco.slice(0, tentativasErradas)}
     </svg>
   );
